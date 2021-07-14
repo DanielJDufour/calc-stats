@@ -1,0 +1,37 @@
+{
+  "name": "calc-stats",
+  "version": "0.0.0",
+  "description": "Memory-Aware Statistical Calculations",
+  "main": "calc-stats.js",
+  "scripts": {
+    "format": "npx prettier --write *.js",
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanielJDufour/calc-stats.git"
+  },
+  "keywords": [
+    "array",
+    "floats",
+    "iter",
+    "iterable",
+    "math",
+    "max",
+    "mean",
+    "min",
+    "numbers",
+    "stats",
+    "stream"
+  ],
+  "author": "Daniel J. Dufour",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/DanielJDufour/calc-stats/issues"
+  },
+  "homepage": "https://github.com/DanielJDufour/calc-stats#readme",
+  "devDependencies": {
+    "faster-median": "^0.2.0",
+    "flug": "^1.1.0"
+  }
+}
