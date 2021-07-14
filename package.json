@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "Memory-Aware Statistical Calculations",
   "main": "calc-stats.js",
+  "files": [
+    "calc-stats.js"
+  ],
   "scripts": {
     "format": "npx prettier --write *.js",
     "test": "node test.js"
