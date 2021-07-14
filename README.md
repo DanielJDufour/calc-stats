@@ -22,6 +22,8 @@ npm install calc-stats
 ```javascript
 import calcStats from "calc-stats";
 
+// data can be an iterator with numerical values
+// or something with a built-in iterator like an Array or TypedArray
 const results = calcStats(data);
 /*
   results is
