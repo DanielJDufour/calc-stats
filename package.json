@@ -34,7 +34,9 @@
   },
   "homepage": "https://github.com/DanielJDufour/calc-stats#readme",
   "devDependencies": {
-    "faster-median": "^0.2.0",
     "flug": "^1.1.0"
+  },
+  "dependencies": {
+    "faster-median": "^0.2.0"
   }
 }
