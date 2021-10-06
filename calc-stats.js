@@ -77,7 +77,7 @@ function calcStats(
   }
 
   let needCount = calcMean || calcMedian;
-  let needHistogram = calcMode || calcHistogram;
+  let needHistogram = calcMode || calcModes || calcHistogram;
   let needSum = calcSum || calcMean;
 
   let count = 0;
