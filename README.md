@@ -51,6 +51,8 @@ const results = calcStats(data);
 # advanced usage
 If you only care about specific statistics, you can configure calcStats through an options object:
 ```js
+import calcStats from "calc-stats";
+
 // we only want the min and max
 const options = {
   calcHistogram: false,
