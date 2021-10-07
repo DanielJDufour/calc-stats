@@ -18,7 +18,7 @@ Enjoy!
 npm install calc-stats
 ```
 
-# usage
+# basic usage
 ```javascript
 import calcStats from "calc-stats";
 
@@ -46,4 +46,22 @@ const results = calcStats(data);
     }
   });
 */
+```
+
+# advanced usage
+If you only care about specific statistics, you can configure calcStats through an options object:
+```js
+// we only want the min and max
+const options = {
+  calcHistogram: false,
+  calcMax: true,
+  calcMean: false,
+  calcMedian: false,
+  calcMin: true,
+  calcMode: false,
+  calcModes: false,
+  calcSum: false
+};
+const results = calcStats(data, options);
+// results is { min: 1, max: 100 }
 ```
