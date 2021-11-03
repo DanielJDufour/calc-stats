@@ -1,53 +1,5 @@
+const { getOrCreateIterator } = require("iter-fun");
 const fasterMedian = require("faster-median");
-
-const isArray = (data) => {
-  try {
-    return data.constructor.name.endsWith("Array");
-  } catch {
-    return false;
-  }
-};
-
-const hasNext = (data) => {
-  try {
-    return typeof data.next === "function";
-  } catch {
-    return false;
-  }
-};
-
-const hasIterator = (data) => {
-  try {
-    return "@@iterator" in data;
-  } catch {
-    return false;
-  }
-};
-
-const hasSymbolIterator = (data) => {
-  try {
-    return Symbol.iterator in data.constructor.prototype;
-  } catch {
-    return false;
-  }
-};
-
-const getIterator = (data) => {
-  const iter = data["@@iterator"];
-  if (hasNext(iter)) {
-    return iter;
-  } else if (typeof iter === "function") {
-    return iter();
-  }
-};
-
-const createIterator = (data) => {
-  let i = 0;
-  let len = data.length;
-  return {
-    next: () => (i++ < len ? { value: data[i], done: false } : { done: true }),
-  };
-};
 
 function calcStats(
   data,
@@ -62,19 +14,7 @@ function calcStats(
     calcSum = true,
   } = { debugLevel: 0 }
 ) {
-  let iter;
-
-  if (hasNext(data)) {
-    iter = data;
-  } else if (hasSymbolIterator(data)) {
-    iter = data[Symbol.iterator]();
-  } else if (hasIterator(data)) {
-    iter = getIterator(data);
-  } else if (typeof data === "string" || isArray(data)) {
-    iter = createIterator(data);
-  } else {
-    throw "[calc-stats] unable to determine iterator";
-  }
+  const iter = getOrCreateIterator(data);
 
   let needCount = calcMean || calcMedian;
   let needHistogram = calcHistogram || calcMedian || calcMode || calcModes;
