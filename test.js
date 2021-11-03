@@ -19,7 +19,7 @@ const expectation = {
   median: 70,
   mode: 99,
   modes: [99],
-  sum: 328350,
+  sum: 328350
 };
 
 test("array", ({ eq }) => {
@@ -30,4 +30,20 @@ test("array", ({ eq }) => {
 test("iterator", ({ eq }) => {
   const results = calcStats(nums[Symbol.iterator]());
   eq(results, expectation);
+});
+
+test("no data", ({ eq }) => {
+  const results = calcStats(nums[Symbol.iterator](), {
+    calcHistogram: false,
+    noData: 99
+  });
+  eq(results, {
+    median: 70,
+    min: 1,
+    max: 98,
+    sum: 318549,
+    mean: 64.35333333333334,
+    modes: [98],
+    mode: 98
+  });
 });

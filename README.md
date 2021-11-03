@@ -49,6 +49,13 @@ const results = calcStats(data);
 ```
 
 # advanced usage
+## no data value
+If you want to ignore a certain number as a "No Data Value", pass in noData:
+```js
+const results = calcStats(data, { noData: -99 });
+```
+
+## specify calculations
 If you only care about specific statistics, you can configure calcStats through an options object:
 ```js
 import calcStats from "calc-stats";

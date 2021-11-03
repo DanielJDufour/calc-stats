@@ -4,6 +4,7 @@ const fasterMedian = require("faster-median");
 function calcStats(
   data,
   {
+    noData = undefined,
     calcHistogram = true,
     calcMax = true,
     calcMean = true,
@@ -11,7 +12,7 @@ function calcStats(
     calcMin = true,
     calcMode = true,
     calcModes = true,
-    calcSum = true,
+    calcSum = true
   } = { debugLevel: 0 }
 ) {
   const iter = getOrCreateIterator(data);
@@ -30,12 +31,14 @@ function calcStats(
   while (((obj = iter.next()), obj.done === false)) {
     if (needCount) count++;
     const { value } = obj;
-    if (calcMin && (min === undefined || value < min)) min = value;
-    if (calcMax && (max === undefined || value > max)) max = value;
-    if (needSum) sum += value;
-    if (needHistogram) {
-      if (value in histogram) histogram[value].ct++;
-      else histogram[value] = { n: value, ct: 1 };
+    if (value !== noData) {
+      if (calcMin && (min === undefined || value < min)) min = value;
+      if (calcMax && (max === undefined || value > max)) max = value;
+      if (needSum) sum += value;
+      if (needHistogram) {
+        if (value in histogram) histogram[value].ct++;
+        else histogram[value] = { n: value, ct: 1 };
+      }
     }
   }
   const results = {};
