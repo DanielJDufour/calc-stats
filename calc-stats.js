@@ -75,11 +75,11 @@ function calcStats(
 
   if (async) {
     return (async () => {
-      for await (value of iter) step(value);
+      for await (let value of iter) step(value);
       return finish();
     })();
   } else {
-    for (value of iter) step(value);
+    for (let value of iter) step(value);
     return finish();
   }
 }

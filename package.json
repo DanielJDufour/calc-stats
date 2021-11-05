@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "faster-median": "^0.2.0",
-    "iter-fun": "^0.1.0",
+    "iter-fun": "^0.1.2",
     "quick-resolve": "^0.0.1"
   }
 }

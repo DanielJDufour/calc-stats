@@ -55,3 +55,16 @@ test("no data", ({ eq }) => {
     mode: 98
   });
 });
+
+test("calcHistogram off", ({ eq }) => {
+  const results = calcStats(nums[Symbol.iterator](), { calcHistogram: false });
+  eq(results, {
+    median: 70,
+    min: 1,
+    max: 99,
+    sum: 328350,
+    mean: 66.33333333333333,
+    modes: [99],
+    mode: 99
+  });
+});
