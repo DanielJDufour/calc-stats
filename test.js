@@ -27,6 +27,14 @@ test("array", ({ eq }) => {
   eq(results, expectation);
 });
 
+test("async array", async ({ eq }) => {
+  const results = await calcStats(
+    nums.map(n => Promise.resolve(n)),
+    { async: true }
+  );
+  eq(results, expectation);
+});
+
 test("iterator", ({ eq }) => {
   const results = calcStats(nums[Symbol.iterator]());
   eq(results, expectation);

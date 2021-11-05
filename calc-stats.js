@@ -4,6 +4,7 @@ const fasterMedian = require("faster-median");
 function calcStats(
   data,
   {
+    async = false,
     noData = undefined,
     calcHistogram = true,
     calcMax = true,
@@ -27,10 +28,8 @@ function calcStats(
   let sum = 0;
   const histogram = {};
 
-  let obj;
-  while (((obj = iter.next()), obj.done === false)) {
+  const step = value => {
     if (needCount) count++;
-    const { value } = obj;
     if (value !== noData) {
       if (calcMin && (min === undefined || value < min)) min = value;
       if (calcMax && (max === undefined || value > max)) max = value;
@@ -40,36 +39,49 @@ function calcStats(
         else histogram[value] = { n: value, ct: 1 };
       }
     }
-  }
-  const results = {};
-  if (calcMedian)
-    results.median = fasterMedian({ counts: histogram, total: count });
-  if (calcMin) results.min = min;
-  if (calcMax) results.max = max;
-  if (calcSum) results.sum = sum;
-  if (calcMean) results.mean = sum / count;
-  if (calcHistogram) results.histogram = histogram;
-  if (calcMode || calcModes) {
-    let highest_count = 0;
-    let modes = [];
-    for (let key in histogram) {
-      const { n, ct } = histogram[key];
-      if (ct === highest_count) {
-        modes.push(n);
-      } else if (ct > highest_count) {
-        highest_count = ct;
-        modes = [n];
+  };
+
+  const finish = () => {
+    const results = {};
+    if (calcMedian)
+      results.median = fasterMedian({ counts: histogram, total: count });
+    if (calcMin) results.min = min;
+    if (calcMax) results.max = max;
+    if (calcSum) results.sum = sum;
+    if (calcMean) results.mean = sum / count;
+    if (calcHistogram) results.histogram = histogram;
+    if (calcMode || calcModes) {
+      let highest_count = 0;
+      let modes = [];
+      for (let key in histogram) {
+        const { n, ct } = histogram[key];
+        if (ct === highest_count) {
+          modes.push(n);
+        } else if (ct > highest_count) {
+          highest_count = ct;
+          modes = [n];
+        }
       }
+
+      if (calcModes) results.modes = modes;
+
+      // compute mean value of all the most popular numbers
+      if (calcMode)
+        results.mode = modes.reduce((acc, n) => acc + n, 0) / modes.length;
     }
 
-    if (calcModes) results.modes = modes;
+    return results;
+  };
 
-    // compute mean value of all the most popular numbers
-    if (calcMode)
-      results.mode = modes.reduce((acc, n) => acc + n, 0) / modes.length;
+  if (async) {
+    return (async () => {
+      for await (value of iter) step(value);
+      return finish();
+    })();
+  } else {
+    for (value of iter) step(value);
+    return finish();
   }
-
-  return results;
 }
 
 module.exports = calcStats;

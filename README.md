@@ -55,6 +55,13 @@ If you want to ignore a certain number as a "No Data Value", pass in noData:
 const results = calcStats(data, { noData: -99 });
 ```
 
+## asynchronous iterations
+If you pass in an asynchronous iterable, such as one fetching remote image tiles,
+you can transform calcStats to handle this by setting async to true.
+```js
+const results = await calcStats(datafetcher, { async: true });
+``` 
+
 ## specify calculations
 If you only care about specific statistics, you can configure calcStats through an options object:
 ```js
