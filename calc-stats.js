@@ -29,8 +29,8 @@ function calcStats(
   const histogram = {};
 
   const step = value => {
-    if (needCount) count++;
     if (value !== noData) {
+      if (needCount) count++;
       if (calcMin && (min === undefined || value < min)) min = value;
       if (calcMax && (max === undefined || value > max)) max = value;
       if (needSum) sum += value;
