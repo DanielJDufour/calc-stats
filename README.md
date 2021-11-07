@@ -62,6 +62,23 @@ you can transform calcStats to handle this by setting async to true.
 const results = await calcStats(datafetcher, { async: true });
 ``` 
 
+## filtering
+If you want to ignore some values, you can use a filter function:
+```js
+const results = calcStats(data, {
+  filter: ({ index, value }) => {
+    // ignore the first 10 numbers
+    if (index < 10) return false;
+
+    // ignore any negative numbers
+    // or values greater than 100
+    if (value < 0 && value > 100) return false;
+
+    return true;
+  }
+})
+```
+
 ## specify calculations
 If you only care about specific statistics, you can configure calcStats through an options object:
 ```js

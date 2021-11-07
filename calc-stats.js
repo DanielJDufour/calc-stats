@@ -6,6 +6,7 @@ function calcStats(
   {
     async = false,
     noData = undefined,
+    filter = undefined,
     calcHistogram = true,
     calcMax = true,
     calcMean = true,
@@ -18,28 +19,49 @@ function calcStats(
 ) {
   const iter = getOrCreateIterator(data);
 
-  let needCount = calcMean || calcMedian;
+  let needCount = calcMean || calcMedian || typeof filter === "function";
   let needHistogram = calcHistogram || calcMedian || calcMode || calcModes;
   let needSum = calcSum || calcMean;
 
   let count = 0;
+  let index = 0;
   let min;
   let max;
   let sum = 0;
   const histogram = {};
 
-  const step = value => {
-    if (value !== noData) {
-      if (needCount) count++;
-      if (calcMin && (min === undefined || value < min)) min = value;
-      if (calcMax && (max === undefined || value > max)) max = value;
-      if (needSum) sum += value;
-      if (needHistogram) {
-        if (value in histogram) histogram[value].ct++;
-        else histogram[value] = { n: value, ct: 1 };
-      }
+  // after it processes filtering
+  const process = value => {
+    if (needCount) count++;
+    if (calcMin && (min === undefined || value < min)) min = value;
+    if (calcMax && (max === undefined || value > max)) max = value;
+    if (needSum) sum += value;
+    if (needHistogram) {
+      if (value in histogram) histogram[value].ct++;
+      else histogram[value] = { n: value, ct: 1 };
     }
   };
+
+  let step;
+  if (typeof noData === "number" && typeof filter === "function") {
+    step = value => {
+      index++;
+      if (value !== noData && filter({ count, index, value }) === true) {
+        process(value);
+      }
+    };
+  } else if (typeof noData === "number") {
+    step = value => value !== noData && process(value);
+  } else if (typeof filter === "function") {
+    step = value => {
+      index++;
+      if (filter({ count, index, value }) === true) {
+        process(value);
+      }
+    };
+  } else {
+    step = process;
+  }
 
   const finish = () => {
     const results = {};

@@ -100,3 +100,50 @@ test("median no data", async ({ eq }) => {
     mode: 0.5
   });
 });
+
+test("iterator with filter by value", ({ eq }) => {
+  const results = calcStats(nums[Symbol.iterator](), {
+    filter: ({ value }) => value > 45 && value < 55
+  });
+  eq(results, {
+    median: 50,
+    min: 46,
+    max: 54,
+    sum: 22560,
+    mean: 50.13333333333333,
+    histogram: {
+      46: { n: 46, ct: 46 },
+      47: { n: 47, ct: 47 },
+      48: { n: 48, ct: 48 },
+      49: { n: 49, ct: 49 },
+      50: { n: 50, ct: 50 },
+      51: { n: 51, ct: 51 },
+      52: { n: 52, ct: 52 },
+      53: { n: 53, ct: 53 },
+      54: { n: 54, ct: 54 }
+    },
+    modes: [54],
+    mode: 54
+  });
+});
+
+test("iterator with filter by index", ({ eq }) => {
+  const results = calcStats(nums[Symbol.iterator](), {
+    filter: ({ index }) => index < 10
+  });
+  eq(results, {
+    median: 3,
+    min: 1,
+    max: 4,
+    sum: 26,
+    mean: 2.888888888888889,
+    histogram: {
+      1: { n: 1, ct: 1 },
+      2: { n: 2, ct: 2 },
+      3: { n: 3, ct: 3 },
+      4: { n: 4, ct: 3 }
+    },
+    modes: [3, 4],
+    mode: 3.5
+  });
+});
