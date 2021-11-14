@@ -14,6 +14,7 @@ function calcStats(
     calcMin = true,
     calcMode = true,
     calcModes = true,
+    calcRange = true,
     calcSum = true
   } = { debugLevel: 0 }
 ) {
@@ -22,6 +23,8 @@ function calcStats(
   let needCount = calcMean || calcMedian || typeof filter === "function";
   let needHistogram = calcHistogram || calcMedian || calcMode || calcModes;
   let needSum = calcSum || calcMean;
+  let needMin = calcMin || calcRange;
+  let needMax = calcMax || calcRange;
 
   let count = 0;
   let index = 0;
@@ -33,8 +36,8 @@ function calcStats(
   // after it processes filtering
   const process = value => {
     if (needCount) count++;
-    if (calcMin && (min === undefined || value < min)) min = value;
-    if (calcMax && (max === undefined || value > max)) max = value;
+    if (needMin && (min === undefined || value < min)) min = value;
+    if (needMax && (max === undefined || value > max)) max = value;
     if (needSum) sum += value;
     if (needHistogram) {
       if (value in histogram) histogram[value].ct++;
@@ -70,6 +73,7 @@ function calcStats(
     if (calcMin) results.min = min;
     if (calcMax) results.max = max;
     if (calcSum) results.sum = sum;
+    if (calcRange) results.range = max - min;
     if (calcMean) results.mean = sum / count;
     if (calcHistogram) results.histogram = histogram;
     if (calcMode || calcModes) {

@@ -19,6 +19,7 @@ const expectation = {
   median: 70,
   mode: 99,
   modes: [99],
+  range: 98,
   sum: 328350
 };
 
@@ -52,7 +53,8 @@ test("no data", ({ eq }) => {
     sum: 318549,
     mean: 65.66666666666667,
     modes: [98],
-    mode: 98
+    mode: 98,
+    range: 97
   });
 });
 
@@ -65,7 +67,8 @@ test("calcHistogram off", ({ eq }) => {
     sum: 328350,
     mean: 66.33333333333333,
     modes: [99],
-    mode: 99
+    mode: 99,
+    range: 98
   });
 });
 
@@ -79,7 +82,8 @@ test("calcHistogram off promise array", async ({ eq }) => {
     sum: 328350,
     mean: 66.33333333333333,
     modes: [99],
-    mode: 99
+    mode: 99,
+    range: 98
   });
 });
 
@@ -97,7 +101,8 @@ test("median no data", async ({ eq }) => {
     mean: 0.5,
     histogram: { 0: { n: 0, ct: 100 }, 1: { n: 1, ct: 100 } },
     modes: [0, 1],
-    mode: 0.5
+    mode: 0.5,
+    range: 1
   });
 });
 
@@ -123,7 +128,8 @@ test("iterator with filter by value", ({ eq }) => {
       54: { n: 54, ct: 54 }
     },
     modes: [54],
-    mode: 54
+    mode: 54,
+    range: 8
   });
 });
 
@@ -144,6 +150,7 @@ test("iterator with filter by index", ({ eq }) => {
       4: { n: 4, ct: 3 }
     },
     modes: [3, 4],
-    mode: 3.5
+    mode: 3.5,
+    range: 3
   });
 });

@@ -34,6 +34,7 @@ const results = calcStats(data);
     median: 70,
     mode: 95, // mean average of the most popular numbers
     modes: [90, 100], // all the most popular numbers
+    range: 99, // the difference between max and min
     sum: 328350,
     histogram: {
       '1': {
@@ -93,8 +94,9 @@ const options = {
   calcMin: true,
   calcMode: false,
   calcModes: false,
+  calcRange: true,
   calcSum: false
 };
 const results = calcStats(data, options);
-// results is { min: 1, max: 100 }
+// results is { min: 1, max: 100, range: 99 }
 ```
