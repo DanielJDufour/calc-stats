@@ -49,27 +49,26 @@ function calcStats(
   if (typeof noData === "number" && typeof filter === "function") {
     step = value => {
       index++;
-      if (value !== noData && filter({ count, index, value }) === true) {
+      if (typeof value === "number" && value !== noData && filter({ count, index, value }) === true) {
         process(value);
       }
     };
   } else if (typeof noData === "number") {
-    step = value => value !== noData && process(value);
+    step = value => typeof value === "number" && value !== noData && process(value);
   } else if (typeof filter === "function") {
     step = value => {
       index++;
-      if (filter({ count, index, value }) === true) {
+      if (typeof value === "number" && filter({ count, index, value }) === true) {
         process(value);
       }
     };
   } else {
-    step = process;
+    step = value => typeof value === "number" && process(value);
   }
 
   const finish = () => {
     const results = {};
-    if (calcMedian)
-      results.median = fasterMedian({ counts: histogram, total: count });
+    if (calcMedian) results.median = fasterMedian({ counts: histogram, total: count });
     if (calcMin) results.min = min;
     if (calcMax) results.max = max;
     if (calcSum) results.sum = sum;
@@ -92,8 +91,7 @@ function calcStats(
       if (calcModes) results.modes = modes;
 
       // compute mean value of all the most popular numbers
-      if (calcMode)
-        results.mode = modes.reduce((acc, n) => acc + n, 0) / modes.length;
+      if (calcMode) results.mode = modes.reduce((acc, n) => acc + n, 0) / modes.length;
     }
 
     return results;

@@ -88,10 +88,7 @@ test("calcHistogram off promise array", async ({ eq }) => {
 });
 
 test("median no data", async ({ eq }) => {
-  const data = new Array(1e5)
-    .fill(-99)
-    .concat(new Array(1e2).fill(0))
-    .concat(new Array(1e2).fill(1));
+  const data = new Array(1e5).fill(-99).concat(new Array(1e2).fill(0)).concat(new Array(1e2).fill(1));
   const results = await calcStats(data, { noData: -99 });
   eq(results, {
     median: 0.5,
@@ -152,5 +149,21 @@ test("iterator with filter by index", ({ eq }) => {
     modes: [3, 4],
     mode: 3.5,
     range: 3
+  });
+});
+
+test("nulls", ({ eq }) => {
+  const data = [61, null, null, null, null, null, null, null, null, null];
+  const stats = calcStats(data);
+  eq(stats, {
+    median: 61,
+    min: 61,
+    max: 61,
+    sum: 61,
+    range: 0,
+    mean: 61,
+    histogram: { 61: { n: 61, ct: 1 } },
+    modes: [61],
+    mode: 61
   });
 });
