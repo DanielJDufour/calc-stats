@@ -17,6 +17,7 @@ function calcStats(
     filter = undefined,
     calcCount = true,
     calcHistogram = true,
+    calcInvalid = true,
     calcMax = true,
     calcMean = true,
     calcMedian = true,
@@ -26,6 +27,7 @@ function calcStats(
     calcRange = true,
     calcStd = true,
     calcSum = true,
+    calcValid = true,
     calcVariance = true,
     calcUniques = true,
     stats
@@ -38,6 +40,7 @@ function calcStats(
         ![
           "count",
           "histogram",
+          "invalid",
           "max",
           "mean",
           "median",
@@ -47,6 +50,7 @@ function calcStats(
           "range",
           "sum",
           "std",
+          "valid",
           "variance",
           "uniques"
         ].includes(stat)
@@ -56,6 +60,7 @@ function calcStats(
     });
     calcCount = stats.includes("count");
     calcHistogram = stats.includes("histogram");
+    calcInvalid = stats.includes("invalid");
     calcMax = stats.includes("max");
     calcMean = stats.includes("mean");
     calcMedian = stats.includes("median");
@@ -63,21 +68,25 @@ function calcStats(
     calcMode = stats.includes("mode");
     calcModes = stats.includes("modes");
     calcRange = stats.includes("range");
-    calcSum = stats.includes("sum");
     calcStd = stats.includes("std");
+    calcSum = stats.includes("sum");
+    calcValid = stats.includes("valid");
     calcVariance = stats.includes("variance");
     calcUniques = stats.includes("uniques");
   }
 
   const iter = getOrCreateIterator(data);
 
-  let needCount = calcCount || calcMean || calcMedian || calcVariance || calcStd || typeof filter === "function";
   let needHistogram = calcHistogram || calcMedian || calcMode || calcModes || calcVariance || calcStd || calcUniques;
+  let needValid =
+    calcCount || calcMean || calcMedian || calcValid || calcVariance || calcStd || typeof filter === "function";
+  let needInvalid = calcCount || calcInvalid || typeof filter === "function";
   let needSum = calcSum || calcMean || calcVariance || calcStd;
   let needMin = calcMin || calcRange;
   let needMax = calcMax || calcRange;
 
-  let count = 0;
+  let valid = 0;
+  let invalid = 0;
   let index = 0;
   let min;
   let max;
@@ -86,7 +95,7 @@ function calcStats(
 
   // after it processes filtering
   const process = value => {
-    if (needCount) count++;
+    if (needValid) valid++;
     if (needMin && (min === undefined || value < min)) min = value;
     if (needMax && (max === undefined || value > max)) max = value;
     if (needSum) sum += value;
@@ -100,36 +109,54 @@ function calcStats(
   if (typeof noData === "number" && typeof filter === "function") {
     step = value => {
       index++;
-      if (typeof value === "number" && value !== noData && filter({ count, index, value }) === true) {
+      if (typeof value === "number" && value !== noData && filter({ valid, index, value }) === true) {
         process(value);
+      } else if (needInvalid) {
+        invalid++;
       }
     };
   } else if (typeof noData === "number") {
-    step = value => typeof value === "number" && value !== noData && process(value);
+    step = value => {
+      if (typeof value === "number" && value !== noData) {
+        process(value);
+      } else if (needInvalid) {
+        invalid++;
+      }
+    };
   } else if (typeof filter === "function") {
     step = value => {
       index++;
-      if (typeof value === "number" && filter({ count, index, value }) === true) {
+      if (typeof value === "number" && filter({ valid, index, value }) === true) {
         process(value);
+      } else if (needInvalid) {
+        invalid++;
       }
     };
   } else {
-    step = value => typeof value === "number" && process(value);
+    step = value => {
+      if (typeof value === "number") {
+        process(value);
+      } else if (needInvalid) {
+        invalid++;
+      }
+    };
   }
 
   const finish = () => {
     const results = {};
-    if (calcCount) results.count = count;
-    if (calcMedian) results.median = fasterMedian({ counts: histogram, total: count });
+    if (calcCount) results.count = invalid + valid;
+    if (calcValid) results.valid = valid;
+    if (calcInvalid) results.invalid = invalid;
+    if (calcMedian) results.median = fasterMedian({ counts: histogram, total: valid });
     if (calcMin) results.min = min;
     if (calcMax) results.max = max;
     if (calcSum) results.sum = sum;
     if (calcRange) results.range = max - min;
     if (calcMean || calcVariance || calcStd) {
-      const mean = sum / count;
+      const mean = sum / valid;
       if (calcMean) results.mean = mean;
       if (calcVariance || calcStd) {
-        const variance = computeVariance({ count, histogram, mean });
+        const variance = computeVariance({ count: valid, histogram, mean });
         if (calcVariance) results.variance = variance;
         if (calcStd) results.std = Math.sqrt(variance);
       }
