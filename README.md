@@ -28,7 +28,7 @@ const results = calcStats(data);
 /*
   results is
   {
-    count: 4950,
+    count: 4950, // number of valid numerical values
     min: 1,
     max: 100,
     mean: 66.25,
@@ -46,7 +46,7 @@ const results = calcStats(data);
       .
     },
     std: 23.44970978261541, // standard deviation
-    sum: 328350, // sum of all the valid pixel values
+    sum: 328350, // sum of all the valid numerical values
     variance: 549.8888888888889, // variance of std calculation
     uniques: [1, 2, 3, 4, 5, ...] // sorted array of unique values (same as histogram keys)
   });
