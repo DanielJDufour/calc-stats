@@ -207,3 +207,10 @@ test("stats param", ({ eq }) => {
     std: 23.44970978261541
   });
 });
+
+test("calc just standard deviation", ({ eq }) => {
+  const stats = calcStats(nums, { stats: ["std"] });
+  eq(stats, {
+    std: 23.44970978261541
+  });
+});

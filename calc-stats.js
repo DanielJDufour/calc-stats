@@ -59,6 +59,7 @@ function calcStats(
     calcMax = stats.includes("max");
     calcMean = stats.includes("mean");
     calcMedian = stats.includes("median");
+    calcMin = stats.includes("min");
     calcMode = stats.includes("mode");
     calcModes = stats.includes("modes");
     calcRange = stats.includes("range");
@@ -71,7 +72,7 @@ function calcStats(
   const iter = getOrCreateIterator(data);
 
   let needCount = calcCount || calcMean || calcMedian || calcVariance || calcStd || typeof filter === "function";
-  let needHistogram = calcHistogram || calcMedian || calcMode || calcModes || calcUniques;
+  let needHistogram = calcHistogram || calcMedian || calcMode || calcModes || calcVariance || calcStd || calcUniques;
   let needSum = calcSum || calcMean || calcVariance || calcStd;
   let needMin = calcMin || calcRange;
   let needMax = calcMax || calcRange;
