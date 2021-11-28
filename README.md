@@ -28,6 +28,7 @@ const results = calcStats(data);
 /*
   results is
   {
+    count: 4950,
     min: 1,
     max: 100,
     mean: 66.25,
@@ -35,7 +36,6 @@ const results = calcStats(data);
     mode: 95, // mean average of the most popular numbers
     modes: [90, 100], // all the most popular numbers
     range: 99, // the difference between max and min
-    sum: 328350,
     histogram: {
       '1': {
         n: 1, // numerical value
@@ -44,7 +44,11 @@ const results = calcStats(data);
       .
       .
       .
-    }
+    },
+    std: 23.44970978261541, // standard deviation
+    sum: 328350, // sum of all the valid pixel values
+    variance: 549.8888888888889, // variance of std calculation
+    uniques: [1, 2, 3, 4, 5, ...] // sorted array of unique values (same as histogram keys)
   });
 */
 ```
@@ -81,22 +85,10 @@ const results = calcStats(data, {
 ```
 
 ## specify calculations
-If you only care about specific statistics, you can configure calcStats through an options object:
+If you only care about specific statistics, you can pass in a stats array
 ```js
 import calcStats from "calc-stats";
 
-// we only want the min and max
-const options = {
-  calcHistogram: false,
-  calcMax: true,
-  calcMean: false,
-  calcMedian: false,
-  calcMin: true,
-  calcMode: false,
-  calcModes: false,
-  calcRange: true,
-  calcSum: false
-};
-const results = calcStats(data, options);
+const results = calcStats(data, { stats: ["min", "max", "range"] });
 // results is { min: 1, max: 100, range: 99 }
 ```
