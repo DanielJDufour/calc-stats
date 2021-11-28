@@ -1,6 +1,6 @@
 {
   "name": "calc-stats",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Memory-Aware Statistical Calculations",
   "main": "calc-stats.js",
   "files": [
