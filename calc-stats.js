@@ -48,7 +48,7 @@ function calcStats(
           "sum",
           "std",
           "variance",
-          "unique"
+          "uniques"
         ].includes(stat)
       ) {
         console.warn(`skipping unknown stat "${stat}"`);
