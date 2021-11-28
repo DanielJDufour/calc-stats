@@ -51,7 +51,7 @@ function calcStats(
           "uniques"
         ].includes(stat)
       ) {
-        console.warn(`skipping unknown stat "${stat}"`);
+        console.warn(`[calc-stats] skipping unknown stat "${stat}"`);
       }
     });
     calcCount = stats.includes("count");
