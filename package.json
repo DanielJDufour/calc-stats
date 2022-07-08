@@ -3,13 +3,16 @@
   "version": "2.0.0",
   "description": "Memory-Aware Statistical Calculations",
   "main": "calc-stats.js",
+  "types": "calc-stats.d.ts",
   "files": [
+    "calc-stats.d.ts",
     "calc-stats.js"
   ],
   "scripts": {
     "f": "npm run format",
-    "format": "npx prettier --arrow-parens=avoid --print-width=120 --trailing-comma=none --write *.js",
-    "test": "node test.js"
+    "format": "npx prettier --arrow-parens=avoid --print-width=120 --trailing-comma=none --write *.js *.ts",
+    "test": "node test.js",
+    "test:ts": "npx ts-node test.ts"
   },
   "repository": {
     "type": "git",
