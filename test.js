@@ -1,6 +1,8 @@
 const test = require("flug");
 const calcStats = require("./calc-stats");
 
+const keys = obj => Object.keys(obj).sort();
+
 const nums = [];
 
 const histogram = {};
@@ -29,6 +31,26 @@ const expectation = {
   uniques: Array.from(new Set(nums))
 };
 
+const precise_expectation = {
+  count: "4950",
+  histogram: Object.fromEntries(
+    Object.values(histogram).map(({ n, ct }) => [n, { n: n.toString(), ct: ct.toString() }])
+  ),
+  invalid: "0",
+  min: "1",
+  max: "99",
+  mean: "66.3333333333",
+  median: "70",
+  mode: "99",
+  modes: ["99"],
+  range: "98",
+  sum: "328350",
+  std: "23.44970978261541",
+  valid: "4950",
+  variance: "549.88888888888888888889",
+  uniques: Array.from(new Set(nums.map(n => n.toString())))
+};
+
 test("array", ({ eq }) => {
   const results = calcStats(nums);
   eq(results, expectation);
@@ -40,6 +62,11 @@ test("async array", async ({ eq }) => {
     { async: true }
   );
   eq(results, expectation);
+});
+
+test("precise", ({ eq }) => {
+  const results = calcStats(nums, { precise: true, precise_max_decimal_digits: 10 });
+  eq(results, precise_expectation);
 });
 
 test("iterator", ({ eq }) => {
@@ -195,7 +222,7 @@ test("iterator with filter by index", ({ eq }) => {
 test("nulls", ({ eq }) => {
   const data = [61, null, null, null, null, null, null, null, null, null];
   const stats = calcStats(data);
-  eq(stats, {
+  const expected = {
     count: 10,
     median: 61,
     min: 61,
@@ -211,7 +238,17 @@ test("nulls", ({ eq }) => {
     variance: 0,
     std: 0,
     uniques: [61]
-  });
+  };
+  eq(keys(stats), keys(expected));
+  for (key in stats) {
+    try {
+      eq(stats[key], expected[key]);
+    } catch (error) {
+      console.error(key);
+      throw error;
+    }
+  }
+  eq(stats, expected);
 });
 
 test("stats param", ({ eq }) => {

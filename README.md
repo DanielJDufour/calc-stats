@@ -94,3 +94,13 @@ import calcStats from "calc-stats";
 const results = calcStats(data, { stats: ["min", "max", "range"] });
 // results is { min: 1, max: 100, range: 99 }
 ```
+
+## precision
+If you want super precise calculations avoiding floating-point arithmetic issues,
+set precise to true.  Numerical results will be returned as strings to preserve precision.
+Precise calculations are performed by [preciso](https://github.com/danieljdufour/preciso).
+```js
+import calcStats from "calc-stats";
+
+const results = calcStats(data, { precise: true });
+```

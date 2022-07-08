@@ -7,6 +7,7 @@
     "calc-stats.js"
   ],
   "scripts": {
+    "f": "npm run format",
     "format": "npx prettier --arrow-parens=avoid --print-width=120 --trailing-comma=none --write *.js",
     "test": "node test.js"
   },
@@ -33,12 +34,13 @@
     "url": "https://github.com/DanielJDufour/calc-stats/issues"
   },
   "homepage": "https://github.com/DanielJDufour/calc-stats#readme",
-  "devDependencies": {
-    "flug": "^1.1.0"
-  },
   "dependencies": {
-    "faster-median": "^0.2.0",
     "iter-fun": "^0.1.2",
+    "mediana": "^1.0.3",
+    "preciso": "^0.7.0",
     "quick-resolve": "^0.0.1"
+  },
+  "devDependencies": {
+    "flug": "^2.3.1"
   }
 }
