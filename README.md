@@ -46,6 +46,7 @@ const results = calcStats(data);
       .
     },
     invalid: 0, // count of no-data and filtered out values
+    product: Infinity, // use { precise: true } for a more accurate product
     std: 23.44970978261541, // standard deviation
     sum: 328350, // sum of all the valid numerical values
     valid: 4950, // count of valid numerical values
@@ -68,6 +69,19 @@ you can transform calcStats to handle this by setting async to true.
 ```js
 const results = await calcStats(datafetcher, { async: true });
 ``` 
+
+## chunked
+If your data is grouped into chunks or batches, but you want to process
+them all as one group, pass `{ chunked: true }`.
+```js
+const rows = [
+  [1, 2, 3],
+  [4, 5, 6],
+  [7, 8, 9]
+];
+calcStats(rows, { chunked: true, stats: ["min", "max"] });
+{ min: 1, max: 9 }
+```
 
 ## filtering
 If you want to ignore some values, you can use a filter function:

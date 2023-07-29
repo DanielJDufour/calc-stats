@@ -23,6 +23,7 @@ function calcStats(
   data,
   {
     async = false,
+    chunked = false,
     noData = undefined,
     filter = undefined,
     calcCount = true,
@@ -34,6 +35,7 @@ function calcStats(
     calcMin = true,
     calcMode = true,
     calcModes = true,
+    calcProduct = true,
     calcRange = true,
     calcStd = true,
     calcSum = true,
@@ -59,6 +61,7 @@ function calcStats(
           "min",
           "mode",
           "modes",
+          "product",
           "range",
           "sum",
           "std",
@@ -79,6 +82,7 @@ function calcStats(
     calcMin = stats.includes("min");
     calcMode = stats.includes("mode");
     calcModes = stats.includes("modes");
+    calcProduct = stats.includes("product");
     calcRange = stats.includes("range");
     calcStd = stats.includes("std");
     calcSum = stats.includes("sum");
@@ -91,16 +95,25 @@ function calcStats(
 
   let needHistogram = calcHistogram || calcMedian || calcMode || calcModes || calcVariance || calcStd || calcUniques;
   let needValid =
-    calcCount || calcMean || calcMedian || calcValid || calcVariance || calcStd || typeof filter === "function";
+    calcCount ||
+    calcMean ||
+    calcMedian ||
+    calcProduct ||
+    calcValid ||
+    calcVariance ||
+    calcStd ||
+    typeof filter === "function";
   let needInvalid = calcCount || calcInvalid || typeof filter === "function";
   let needSum = calcSum || calcMean || calcVariance || calcStd;
   let needMin = calcMin || calcRange;
   let needMax = calcMax || calcRange;
+  let needProduct = calcProduct;
   let valid = 0;
   let invalid = 0;
   let index = 0;
   let min;
   let max;
+  let product;
   let sum = precise ? "0" : 0;
   const histogram = {};
 
@@ -112,6 +125,7 @@ function calcStats(
       if (needValid) valid++;
       if (needMin && (min === undefined || compare(value, min) === "<")) min = value;
       if (needMax && (max === undefined || compare(value, max) === ">")) max = value;
+      if (needProduct) product = valid === 1 ? value : multiply(product, value);
       if (needSum) sum = add(sum, value);
       if (needHistogram) {
         if (value in histogram) histogram[value].ct++;
@@ -123,6 +137,7 @@ function calcStats(
       if (needValid) valid++;
       if (needMin && (min === undefined || value < min)) min = value;
       if (needMax && (max === undefined || value > max)) max = value;
+      if (needProduct) product = valid === 1 ? value : product * value;
       if (needSum) sum += value;
       if (needHistogram) {
         if (value in histogram) histogram[value].ct++;
@@ -178,6 +193,7 @@ function calcStats(
     }
     if (calcMin) results.min = min; // should already be a string if precise
     if (calcMax) results.max = max; // should already be a string if precise
+    if (calcProduct) results.product = product; // should already be a string if precise
     if (calcSum) results.sum = sum; // should already be a string if precise
     if (calcRange) results.range = precise ? subtract(max.toString(), min.toString()) : max - min;
     if (calcMean || calcVariance || calcStd) {
@@ -232,14 +248,34 @@ function calcStats(
     return results;
   };
 
-  if (async) {
-    return (async () => {
-      for await (let value of iter) step(value);
+  if (chunked) {
+    if (async) {
+      return (async () => {
+        for await (let value of iter) {
+          for (let v of value) {
+            step(v);
+          }
+        }
+        return finish();
+      })();
+    } else {
+      for (let value of iter) {
+        for (let v of value) {
+          step(v);
+        }
+      }
       return finish();
-    })();
+    }
   } else {
-    for (let value of iter) step(value);
-    return finish();
+    if (async) {
+      return (async () => {
+        for await (let value of iter) step(value);
+        return finish();
+      })();
+    } else {
+      for (let value of iter) step(value);
+      return finish();
+    }
   }
 }
 

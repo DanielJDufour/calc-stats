@@ -38,12 +38,12 @@
   },
   "homepage": "https://github.com/DanielJDufour/calc-stats#readme",
   "dependencies": {
-    "iter-fun": "^0.1.2",
+    "iter-fun": "^0.2.0",
     "mediana": "^1.0.3",
-    "preciso": "^0.7.0",
+    "preciso": "^0.12.0",
     "quick-resolve": "^0.0.1"
   },
   "devDependencies": {
-    "flug": "^2.3.1"
+    "flug": "^2.6.0"
   }
 }

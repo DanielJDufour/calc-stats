@@ -1,5 +1,7 @@
+// const { readFileSync } = require("fs");
 const test = require("flug");
 const calcStats = require("./calc-stats");
+// const flatIter = require("flat-iter");
 
 const keys = obj => Object.keys(obj).sort();
 
@@ -23,6 +25,7 @@ const expectation = {
   median: 70,
   mode: 99,
   modes: [99],
+  product: Infinity,
   range: 98,
   sum: 328350,
   std: 23.44970978261541,
@@ -56,6 +59,10 @@ test("array", ({ eq }) => {
   eq(results, expectation);
 });
 
+test("empty array", ({ eq }) => {
+  calcStats([]);
+});
+
 test("async array", async ({ eq }) => {
   const results = await calcStats(
     nums.map(n => Promise.resolve(n)),
@@ -65,7 +72,7 @@ test("async array", async ({ eq }) => {
 });
 
 test("precise", ({ eq }) => {
-  const results = calcStats(nums, { precise: true, precise_max_decimal_digits: 10 });
+  const results = calcStats(nums, { calcProduct: false, precise: true, precise_max_decimal_digits: 10 });
   eq(results, precise_expectation);
 });
 
@@ -90,6 +97,7 @@ test("no data", ({ eq }) => {
     mean: 65.66666666666667,
     modes: [98],
     mode: 98,
+    product: Infinity,
     range: 97,
     std: 23.213980461973534,
     valid: 4851,
@@ -109,6 +117,7 @@ test("calcHistogram off", ({ eq }) => {
     mean: 66.33333333333333,
     modes: [99],
     mode: 99,
+    product: Infinity,
     range: 98,
     std: 23.44970978261541,
     valid: 4950,
@@ -129,6 +138,7 @@ test("calcHistogram off promise array", async ({ eq }) => {
     mean: 66.33333333333333,
     modes: [99],
     mode: 99,
+    product: Infinity,
     range: 98,
     std: 23.44970978261541,
     valid: 4950,
@@ -150,6 +160,7 @@ test("median no data", async ({ eq }) => {
     histogram: { 0: { n: 0, ct: 100 }, 1: { n: 1, ct: 100 } },
     modes: [0, 1],
     mode: 0.5,
+    product: 0,
     range: 1,
     std: 0.5,
     valid: 200,
@@ -183,6 +194,7 @@ test("iterator with filter by value", ({ eq }) => {
     },
     modes: [54],
     mode: 54,
+    product: Infinity,
     range: 8,
     sum: 22560,
     std: 2.578543947441829,
@@ -212,6 +224,7 @@ test("iterator with filter by index", ({ eq }) => {
     invalid: 4941,
     modes: [3, 4],
     mode: 3.5,
+    product: 6912,
     range: 3,
     std: 0.9938079899999066,
     valid: 9,
@@ -232,6 +245,7 @@ test("nulls", ({ eq }) => {
     invalid: 9,
     modes: [61],
     mode: 61,
+    product: 61,
     range: 0,
     sum: 61,
     valid: 1,
@@ -252,11 +266,12 @@ test("nulls", ({ eq }) => {
 });
 
 test("stats param", ({ eq }) => {
-  const stats = calcStats(nums, { stats: ["min", "max", "median", "std"] });
+  const stats = calcStats(nums, { stats: ["min", "max", "median", "product", "std"] });
   eq(stats, {
     min: 1,
     max: 99,
     median: 70,
+    product: Infinity,
     std: 23.44970978261541
   });
 });
@@ -267,3 +282,29 @@ test("calc just standard deviation", ({ eq }) => {
     std: 23.44970978261541
   });
 });
+
+test("product", ({ eq }) => {
+  const data = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+  const stats = calcStats(data, { stats: ["product"] });
+  eq(stats, { product: 362880 });
+
+  const precise_stats = calcStats(data, { precise: true, stats: ["product"] });
+  eq(precise_stats, { product: "362880" });
+});
+
+test("chunked", ({ eq }) => {
+  const rows = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+  ];
+  const stats = calcStats(rows, { chunked: true, stats: ["min", "max"] });
+  eq(stats, { min: 1, max: 9 });
+});
+
+// test("large", ({ eq }) => {
+//   const band = JSON.parse(readFileSync("./data/band.json")).map(row => Uint8Array.from(row));
+//   console.dir(band);
+//   const stats = calcStats(flatIter(nums), { stats: ["min", "max", "range"] });
+//   console.log("stats:", stats);
+// });
