@@ -150,7 +150,7 @@ function calcStats(
   if (typeof noData === "number" && typeof filter === "function") {
     step = value => {
       index++;
-      if (typeof value === "number" && value !== noData && filter({ valid, index, value }) === true) {
+      if (typeof value === "number" && !isNaN(value) && value !== noData && filter({ valid, index, value }) === true) {
         process(value);
       } else if (needInvalid) {
         invalid++;
@@ -158,7 +158,7 @@ function calcStats(
     };
   } else if (typeof noData === "number") {
     step = value => {
-      if (typeof value === "number" && value !== noData) {
+      if (typeof value === "number" && !isNaN(value) && value !== noData) {
         process(value);
       } else if (needInvalid) {
         invalid++;
@@ -167,7 +167,7 @@ function calcStats(
   } else if (typeof filter === "function") {
     step = value => {
       index++;
-      if (typeof value === "number" && filter({ valid, index, value }) === true) {
+      if (typeof value === "number" && !isNaN(value) && filter({ valid, index, value }) === true) {
         process(value);
       } else if (needInvalid) {
         invalid++;
@@ -175,7 +175,7 @@ function calcStats(
     };
   } else {
     step = value => {
-      if (typeof value === "number") {
+      if (typeof value === "number" && !isNaN(value)) {
         process(value);
       } else if (needInvalid) {
         invalid++;

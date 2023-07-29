@@ -232,8 +232,8 @@ test("iterator with filter by index", ({ eq }) => {
   });
 });
 
-test("nulls", ({ eq }) => {
-  const data = [61, null, null, null, null, null, null, null, null, null];
+test("nulls and nans", ({ eq }) => {
+  const data = [61, null, null, null, null, Number("x"), null, null, null, null];
   const stats = calcStats(data);
   const expected = {
     count: 10,
