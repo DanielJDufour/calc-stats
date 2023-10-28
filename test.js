@@ -1,7 +1,6 @@
-// const { readFileSync } = require("fs");
 const test = require("flug");
+const flatIter = require("flat-iter");
 const calcStats = require("./calc-stats");
-// const flatIter = require("flat-iter");
 
 const keys = obj => Object.keys(obj).sort();
 
@@ -302,9 +301,19 @@ test("chunked", ({ eq }) => {
   eq(stats, { min: 1, max: 9 });
 });
 
-// test("large", ({ eq }) => {
-//   const band = JSON.parse(readFileSync("./data/band.json")).map(row => Uint8Array.from(row));
-//   console.dir(band);
-//   const stats = calcStats(flatIter(nums), { stats: ["min", "max", "range"] });
-//   console.log("stats:", stats);
-// });
+test("large", ({ eq }) => {
+  const m = 5;
+  const height = 3974 * m;
+  const width = 7322 * m;
+  const rows = [];
+  for (let r = 0; r < height; r++) {
+    const row = new Uint8Array(width);
+    for (let c = 0; c < width; c++) {
+      row[c] = Math.round(Math.random() * 255);
+    }
+    rows.push(row);
+  }
+  const stats = calcStats(rows, { chunked: true, stats: ["min", "max", "range"], timed: true });
+
+  eq(stats, { min: 0, max: 255, range: 255 });
+});
