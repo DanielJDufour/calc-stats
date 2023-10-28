@@ -118,3 +118,11 @@ import calcStats from "calc-stats";
 
 const results = calcStats(data, { precise: true });
 ```
+
+## timed
+If you want to log how long it takes to calculate statistics,
+set `{ timed: true }`;
+```js
+calcStats(data, { timed: true });
+// [calc-stats] took 3 seconds
+```

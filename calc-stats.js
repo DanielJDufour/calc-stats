@@ -2,6 +2,9 @@ const { getOrCreateIterator } = require("iter-fun");
 const { add, compare, divide, mean, multiply, pow, sort, subtract, sum } = require("preciso");
 const mediana = require("mediana");
 
+// n === n is a lot quicker than !isNaN(n)
+const isValidNumber = n => typeof n === "number" && n === n;
+
 const computeVariance = ({ count, histogram, mean_value, precise = false }) => {
   if (precise) {
     mean_value = mean_value.toString();
@@ -44,9 +47,12 @@ function calcStats(
     calcUniques = true,
     precise = false,
     precise_max_decimal_digits = 100,
-    stats
+    stats,
+    timed = false
   } = { debugLevel: 0 }
 ) {
+  const start = timed ? performance.now() : 0;
+
   if (stats) {
     // validate stats argument
     stats.forEach(stat => {
@@ -119,12 +125,39 @@ function calcStats(
 
   // after it processes filtering
   let process;
+
+  // hoisting functions outside of conditionals
+  // in order to help compilers optimize
+  const initial_process = value => {
+    if (needValid) valid = 1;
+    if (needMin) min = value;
+    if (needMax) max = value;
+    if (needProduct) product = value;
+    if (needSum) sum = value;
+    if (needHistogram) {
+      histogram[value] = { n: value, ct: 1 };
+    }
+    process = subsequent_process;
+  };
+
+  const subsequent_process = value => {
+    if (needValid) valid++;
+    if (needMin && value < min) min = value;
+    if (needMax && value > max) max = value;
+    if (needProduct) product *= value;
+    if (needSum) sum += value;
+    if (needHistogram) {
+      if (value in histogram) histogram[value].ct++;
+      else histogram[value] = { n: value, ct: 1 };
+    }
+  };
+
   if (precise) {
     process = value => {
       value = value.toString();
       if (needValid) valid++;
-      if (needMin && (min === undefined || compare(value, min) === "<")) min = value;
-      if (needMax && (max === undefined || compare(value, max) === ">")) max = value;
+      if (needMin && (typeof min === "undefined" || compare(value, min) === "<")) min = value;
+      if (needMax && (typeof max === "undefined" || compare(value, max) === ">")) max = value;
       if (needProduct) product = valid === 1 ? value : multiply(product, value);
       if (needSum) sum = add(sum, value);
       if (needHistogram) {
@@ -133,24 +166,14 @@ function calcStats(
       }
     };
   } else {
-    process = value => {
-      if (needValid) valid++;
-      if (needMin && (min === undefined || value < min)) min = value;
-      if (needMax && (max === undefined || value > max)) max = value;
-      if (needProduct) product = valid === 1 ? value : product * value;
-      if (needSum) sum += value;
-      if (needHistogram) {
-        if (value in histogram) histogram[value].ct++;
-        else histogram[value] = { n: value, ct: 1 };
-      }
-    };
+    process = initial_process;
   }
 
   let step;
   if (typeof noData === "number" && typeof filter === "function") {
     step = value => {
       index++;
-      if (typeof value === "number" && !isNaN(value) && value !== noData && filter({ valid, index, value }) === true) {
+      if (isValidNumber(value) && value !== noData && filter({ valid, index, value }) === true) {
         process(value);
       } else if (needInvalid) {
         invalid++;
@@ -158,7 +181,7 @@ function calcStats(
     };
   } else if (typeof noData === "number") {
     step = value => {
-      if (typeof value === "number" && !isNaN(value) && value !== noData) {
+      if (isValidNumber(value) && value !== noData) {
         process(value);
       } else if (needInvalid) {
         invalid++;
@@ -167,7 +190,7 @@ function calcStats(
   } else if (typeof filter === "function") {
     step = value => {
       index++;
-      if (typeof value === "number" && !isNaN(value) && filter({ valid, index, value }) === true) {
+      if (isValidNumber(value) && filter({ valid, index, value }) === true) {
         process(value);
       } else if (needInvalid) {
         invalid++;
@@ -175,7 +198,7 @@ function calcStats(
     };
   } else {
     step = value => {
-      if (typeof value === "number" && !isNaN(value)) {
+      if (isValidNumber(value)) {
         process(value);
       } else if (needInvalid) {
         invalid++;
@@ -244,7 +267,14 @@ function calcStats(
           .sort((a, b) => a - b);
       }
     }
-
+    if (timed) {
+      const duration = Math.round(performance.now() - start);
+      if (duration > 2000) {
+        console.log("[calc-stats] took " + Math.round(duration / 1000).toLocaleString() + " seconds");
+      } else {
+        console.log("[calc-stats] took " + duration.toLocaleString() + " milliseconds");
+      }
+    }
     return results;
   };
 
@@ -259,9 +289,19 @@ function calcStats(
         return finish();
       })();
     } else {
-      for (let value of iter) {
-        for (let v of value) {
-          step(v);
+      // array of arrays or array of typed arrays
+      if (Array.isArray(data) && data[0].length) {
+        for (let i = 0; i < data.length; i++) {
+          const value = data[i];
+          for (let ii = 0; ii < value.length; ii++) {
+            step(value[ii]);
+          }
+        }
+      } else {
+        for (let value of iter) {
+          for (let v of value) {
+            step(v);
+          }
         }
       }
       return finish();

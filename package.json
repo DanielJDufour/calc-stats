@@ -11,7 +11,7 @@
   "scripts": {
     "f": "npm run format",
     "format": "npx prettier --arrow-parens=avoid --print-width=120 --trailing-comma=none --write *.js *.ts",
-    "test": "node test.js",
+    "test": "TEST_TIMED=true node test.js",
     "test:ts": "npx ts-node test.ts"
   },
   "repository": {
@@ -44,6 +44,7 @@
     "quick-resolve": "^0.0.1"
   },
   "devDependencies": {
+    "flat-iter": "^0.3.0",
     "flug": "^2.6.0"
   }
 }

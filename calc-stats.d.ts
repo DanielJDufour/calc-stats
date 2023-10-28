@@ -26,6 +26,7 @@ export type STAT =
   | "min"
   | "mode"
   | "modes"
+  | "product"
   | "range"
   | "sum"
   | "std"
@@ -108,6 +109,20 @@ export default function calcStats(
   data: number[] | string[] | any,
   options?: {
     async?: boolean;
+    chunked?: boolean;
+    noData?: number | string;
+    filter?: ({ valid, index, value }: { valid: number; index: number; value: number | string }) => boolean;
+    precise?: boolean;
+    precise_max_decimal_digits?: number;
+    stats?: STAT[] | Readonly<STAT[]>;
+  }
+): any;
+
+export function calcStats(
+  data: number[] | string[] | any,
+  options?: {
+    async?: boolean;
+    chunked?: boolean;
     noData?: number | string;
     filter?: ({ valid, index, value }: { valid: number; index: number; value: number | string }) => boolean;
     precise?: boolean;
