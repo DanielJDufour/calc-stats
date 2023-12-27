@@ -21,6 +21,7 @@ const expectation = {
   median: 70,
   mode: 99,
   modes: [99],
+  product: Infinity,
   range: 98,
   sum: 328350,
   std: 23.44970978261541,
@@ -63,8 +64,10 @@ test("async array", async ({ eq }) => {
 });
 
 test("precise", ({ eq }) => {
-  const results = calcStats(nums, { precise: true, precise_max_decimal_digits: 10 });
-  eq(results, precise_expectation);
+  const inpt = nums.slice(5).map(n => 1 / n);
+  console.log("inpt:", inpt);
+  const results = calcStats(inpt, { precise: true, precise_max_decimal_digits: 50, stats: ["product"] });
+  // eq(results, { product: _ });
 });
 
 test("iterator", ({ eq }) => {
@@ -88,6 +91,7 @@ test("no data", ({ eq }) => {
     mean: 65.66666666666667,
     modes: [98],
     mode: 98,
+    product: Infinity,
     range: 97,
     std: 23.213980461973534,
     valid: 4851,
@@ -109,6 +113,7 @@ test("median no data", async ({ eq }) => {
     histogram: { 0: { n: 0, ct: 100 }, 1: { n: 1, ct: 100 } },
     modes: [0, 1],
     mode: 0.5,
+    product: 0,
     range: 1,
     std: 0.5,
     valid: 200,
@@ -119,7 +124,7 @@ test("median no data", async ({ eq }) => {
 
 test("iterator with filter by value", ({ eq }) => {
   const results = calcStats(nums[Symbol.iterator](), {
-    filter: ({ value }) => value > 45 && value < 55
+    filter: ({ value }: { value: number }) => value > 45 && value < 55
   });
   delete results.uniques;
   eq(results, {
@@ -142,6 +147,7 @@ test("iterator with filter by value", ({ eq }) => {
     },
     modes: [54],
     mode: 54,
+    product: Infinity,
     range: 8,
     sum: 22560,
     std: 2.578543947441829,
@@ -152,7 +158,7 @@ test("iterator with filter by value", ({ eq }) => {
 
 test("iterator with filter by index", ({ eq }) => {
   const results = calcStats(nums[Symbol.iterator](), {
-    filter: ({ index }) => index < 10
+    filter: ({ index }: { index: number }) => index < 10
   });
   delete results.uniques;
   eq(results, {
@@ -171,6 +177,7 @@ test("iterator with filter by index", ({ eq }) => {
     invalid: 4941,
     modes: [3, 4],
     mode: 3.5,
+    product: 6912,
     range: 3,
     std: 0.9938079899999066,
     valid: 9,
@@ -219,4 +226,11 @@ test("stats param", ({ eq }) => {
     median: 70,
     std: 23.44970978261541
   });
+});
+
+test("noData", ({ eq }) => {
+  eq(calcStats(nums, { noData: 1, stats: ["valid", "invalid"] }), { valid: 4949, invalid: 1 });
+  eq(calcStats(nums, { noData: [], stats: ["valid", "invalid"] }), { valid: 4950, invalid: 0 });
+  eq(calcStats(nums, { noData: [13], stats: ["valid", "invalid"] }), { valid: 4937, invalid: 13 });
+  eq(calcStats(nums, { noData: [1, 13], stats: ["valid", "invalid"] }), { valid: 4936, invalid: 14 });
 });

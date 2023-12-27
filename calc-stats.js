@@ -1,5 +1,5 @@
 const { getOrCreateIterator } = require("iter-fun");
-const { add, compare, divide, mean, multiply, pow, sort, subtract, sum } = require("preciso");
+const { add, compare, divide, mean, multiply, pow, round, sort, subtract, sum } = require("preciso");
 const mediana = require("mediana");
 
 // n === n is a lot quicker than !isNaN(n)
@@ -29,6 +29,7 @@ function calcStats(
     chunked = false,
     noData = undefined,
     filter = undefined,
+    map,
     calcCount = true,
     calcHistogram = true,
     calcInvalid = true,
@@ -97,6 +98,11 @@ function calcStats(
     calcUniques = stats.includes("uniques");
   }
 
+  if (typeof map === "string") {
+    const key = map;
+    map = it => it[key];
+  }
+
   const iter = getOrCreateIterator(data);
 
   let needHistogram = calcHistogram || calcMedian || calcMode || calcModes || calcVariance || calcStd || calcUniques;
@@ -158,7 +164,9 @@ function calcStats(
       if (needValid) valid++;
       if (needMin && (typeof min === "undefined" || compare(value, min) === "<")) min = value;
       if (needMax && (typeof max === "undefined" || compare(value, max) === ">")) max = value;
-      if (needProduct) product = valid === 1 ? value : multiply(product, value);
+      if (needProduct) {
+        product = valid === 1 ? value : multiply(product, value, { max_decimal_digits: precise_max_decimal_digits });
+      }
       if (needSum) sum = add(sum, value);
       if (needHistogram) {
         if (value in histogram) histogram[value].ct++;
@@ -182,6 +190,23 @@ function calcStats(
   } else if (typeof noData === "number") {
     step = value => {
       if (isValidNumber(value) && value !== noData) {
+        process(value);
+      } else if (needInvalid) {
+        invalid++;
+      }
+    };
+  } else if (Array.isArray(noData) && noData.length > 0 && typeof filter === "function") {
+    step = value => {
+      index++;
+      if (isValidNumber(value) && !noData.includes(value) && filter({ valid, index, value }) === true) {
+        process(value);
+      } else if (needInvalid) {
+        invalid++;
+      }
+    };
+  } else if (Array.isArray(noData) && noData.length > 0) {
+    step = value => {
+      if (isValidNumber(value) && !noData.includes(value)) {
         process(value);
       } else if (needInvalid) {
         invalid++;
@@ -225,8 +250,23 @@ function calcStats(
         : sum / valid;
       if (calcMean) results.mean = mean_value;
       if (calcVariance || calcStd) {
-        const variance = computeVariance({ count: valid, histogram, mean_value, precise });
-        if (calcVariance) results.variance = variance;
+        let variance = computeVariance({
+          count: valid,
+          histogram,
+          // want enough precision, so we can get a good standard deviation later
+          max_decimal_digits:
+            typeof precise_max_decimal_digits === "number" && precise_max_decimal_digits < 20
+              ? 20
+              : precise_max_decimal_digits,
+          mean_value,
+          precise
+        });
+        if (calcVariance) {
+          results.variance =
+            precise && typeof precise_max_decimal_digits === "number"
+              ? round(variance, { digits: precise_max_decimal_digits })
+              : variance;
+        }
         if (calcStd) results.std = precise ? Math.sqrt(Number(variance)).toString() : Math.sqrt(variance);
       }
     }
@@ -283,6 +323,7 @@ function calcStats(
       return (async () => {
         for await (let value of iter) {
           for (let v of value) {
+            if (map) v = map(v);
             step(v);
           }
         }
@@ -294,12 +335,15 @@ function calcStats(
         for (let i = 0; i < data.length; i++) {
           const value = data[i];
           for (let ii = 0; ii < value.length; ii++) {
-            step(value[ii]);
+            const v = value[ii];
+            if (map) v = map(v);
+            step(v);
           }
         }
       } else {
         for (let value of iter) {
           for (let v of value) {
+            if (map) v = map(v);
             step(v);
           }
         }
@@ -309,11 +353,17 @@ function calcStats(
   } else {
     if (async) {
       return (async () => {
-        for await (let value of iter) step(value);
+        for await (let value of iter) {
+          if (map) value = map(value);
+          step(value);
+        }
         return finish();
       })();
     } else {
-      for (let value of iter) step(value);
+      for (let value of iter) {
+        if (map) value = map(value);
+        step(value);
+      }
       return finish();
     }
   }

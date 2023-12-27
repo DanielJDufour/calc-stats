@@ -40,11 +40,11 @@
   "dependencies": {
     "iter-fun": "^0.2.0",
     "mediana": "^1.0.3",
-    "preciso": "^0.12.0",
+    "preciso": "^0.12.2",
     "quick-resolve": "^0.0.1"
   },
   "devDependencies": {
     "flat-iter": "^0.3.0",
-    "flug": "^2.6.0"
+    "flug": "^2.7.1"
   }
 }

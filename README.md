@@ -58,9 +58,13 @@ const results = calcStats(data);
 
 # advanced usage
 ## no data value
-If you want to ignore a certain number as a "No Data Value", pass in noData:
+If you want to ignore one or more numbers as "No Data Value", pass in noData.  Non-numbers like `undefined`, `null`, or `""` are always treated as no data values, so you don't need to set noData if you just want to ignore those.
+
 ```js
-const results = calcStats(data, { noData: -99 });
+calcStats(data, { noData: -99 });
+
+// treat two numbers as noData values
+calcStats(data, { noData: [-3.4e+38, -3.3999999521443642e+38] });
 ```
 
 ## asynchronous iterations

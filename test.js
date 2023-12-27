@@ -41,7 +41,7 @@ const precise_expectation = {
   invalid: "0",
   min: "1",
   max: "99",
-  mean: "66.3333333333",
+  mean: "66.333333333333333",
   median: "70",
   mode: "99",
   modes: ["99"],
@@ -49,7 +49,7 @@ const precise_expectation = {
   sum: "328350",
   std: "23.44970978261541",
   valid: "4950",
-  variance: "549.88888888888888888889",
+  variance: "549.888888888888889",
   uniques: Array.from(new Set(nums.map(n => n.toString())))
 };
 
@@ -71,7 +71,7 @@ test("async array", async ({ eq }) => {
 });
 
 test("precise", ({ eq }) => {
-  const results = calcStats(nums, { calcProduct: false, precise: true, precise_max_decimal_digits: 10 });
+  const results = calcStats(nums, { calcProduct: false, precise: true, precise_max_decimal_digits: 15 });
   eq(results, precise_expectation);
 });
 
@@ -299,6 +299,18 @@ test("chunked", ({ eq }) => {
   ];
   const stats = calcStats(rows, { chunked: true, stats: ["min", "max"] });
   eq(stats, { min: 1, max: 9 });
+});
+
+test("cells map string", ({ eq }) => {
+  const rows = [{ value: 1 }, { value: 2 }, { value: 3 }];
+  const stats = calcStats(rows, { map: "value", stats: ["min", "max"] });
+  eq(stats, { min: 1, max: 3 });
+});
+
+test("map function", ({ eq }) => {
+  const rows = [{ value: { n: 1 } }, { value: { n: 2 } }, { value: { n: 3 } }];
+  const stats = calcStats(rows, { map: it => it.value.n, stats: ["min", "max"] });
+  eq(stats, { min: 1, max: 3 });
 });
 
 test("large", ({ eq }) => {

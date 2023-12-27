@@ -110,8 +110,11 @@ export default function calcStats(
   options?: {
     async?: boolean;
     chunked?: boolean;
-    noData?: number | string;
-    filter?: ({ valid, index, value }: { valid: number; index: number; value: number | string }) => boolean;
+    noData?: number | string | number[] | string[];
+    filter?:
+      | (({ valid, index, value }: { valid: number; index: number; value: number | string }) => boolean)
+      | (({ value }: { value: number }) => boolean)
+      | (({ value }: { value: string }) => boolean);
     precise?: boolean;
     precise_max_decimal_digits?: number;
     stats?: STAT[] | Readonly<STAT[]>;
