@@ -10,9 +10,13 @@ for (let i = 1; i < 100; i++) {
   }
   histogram[i] = { n: i, ct: i };
 }
+const frequency = Object.fromEntries(
+  Object.entries(histogram).map(([k, { n, ct }]) => [k, { n, freq: ct / nums.length }])
+);
 
 const expectation = {
   count: 4950,
+  frequency,
   histogram,
   invalid: 0,
   min: 1,
@@ -65,7 +69,7 @@ test("async array", async ({ eq }) => {
 
 test("precise", ({ eq }) => {
   const inpt = nums.slice(5).map(n => 1 / n);
-  console.log("inpt:", inpt);
+  // console.log("inpt:", inpt);
   const results = calcStats(inpt, { precise: true, precise_max_decimal_digits: 50, stats: ["product"] });
   // eq(results, { product: _ });
 });
@@ -79,6 +83,7 @@ test("no data", ({ eq }) => {
   const results = calcStats(nums[Symbol.iterator](), { noData: 99 });
   results.count;
   results.sum;
+  delete results.frequency;
   delete results.histogram;
   delete results.uniques;
   eq(results, {
@@ -110,6 +115,7 @@ test("median no data", async ({ eq }) => {
     max: 1,
     sum: 100,
     mean: 0.5,
+    frequency: { 0: { n: 0, freq: 0.5 }, 1: { n: 1, freq: 0.5 } },
     histogram: { 0: { n: 0, ct: 100 }, 1: { n: 1, ct: 100 } },
     modes: [0, 1],
     mode: 0.5,
@@ -126,6 +132,7 @@ test("iterator with filter by value", ({ eq }) => {
   const results = calcStats(nums[Symbol.iterator](), {
     filter: ({ value }: { value: number }) => value > 45 && value < 55
   });
+  delete results.frequency;
   delete results.uniques;
   eq(results, {
     count: 4950,
@@ -168,6 +175,12 @@ test("iterator with filter by index", ({ eq }) => {
     max: 4,
     sum: 26,
     mean: 2.888888888888889,
+    frequency: {
+      1: { n: 1, freq: 0.1111111111111111 },
+      2: { n: 2, freq: 0.2222222222222222 },
+      3: { n: 3, freq: 0.3333333333333333 },
+      4: { n: 4, freq: 0.3333333333333333 }
+    },
     histogram: {
       1: { n: 1, ct: 1 },
       2: { n: 2, ct: 2 },
