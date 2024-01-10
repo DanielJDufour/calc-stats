@@ -40,7 +40,10 @@ const results = calcStats(data);
       "1": {
         "n": 1, // numerical value
         "freq": 0.00202020202020202 // how often the value appears
-      }
+      },
+      .
+      .
+      .
     },
     histogram: {
       "1": {
