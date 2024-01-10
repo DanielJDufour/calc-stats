@@ -335,7 +335,7 @@ function calcStats(
         for (let i = 0; i < data.length; i++) {
           const value = data[i];
           for (let ii = 0; ii < value.length; ii++) {
-            const v = value[ii];
+            let v = value[ii];
             if (map) v = map(v);
             step(v);
           }
