@@ -313,6 +313,15 @@ test("map function", ({ eq }) => {
   eq(stats, { min: 1, max: 3 });
 });
 
+test("chunk + map function", ({ eq }) => {
+  const rows = [
+    [{ value: { n: 1 } }, { value: { n: 2 } }],
+    [{ value: { n: 3 } }, { value: { n: 4 } }]
+  ];
+  const stats = calcStats(rows, { chunked: true, map: it => it.value.n, stats: ["min", "max"] });
+  eq(stats, { min: 1, max: 4 });
+});
+
 test("large", ({ eq }) => {
   const m = 5;
   const height = 3974 * m;
