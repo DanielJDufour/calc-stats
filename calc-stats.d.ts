@@ -18,6 +18,7 @@
 
 export type STAT =
   | "count"
+  | "frequency"
   | "histogram"
   | "invalid"
   | "max"
