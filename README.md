@@ -36,10 +36,16 @@ const results = calcStats(data);
     mode: 95, // mean average of the most popular numbers
     modes: [90, 100], // all the most popular numbers
     range: 99, // the difference between max and min
+    frequency: {
+      "1": {
+        "n": 1, // numerical value
+        "freq": 0.00202020202020202 // how often the value appears
+      }
+    },
     histogram: {
-      '1': {
-        n: 1, // numerical value
-        ct: 10 // times that the value 1 appears
+      "1": {
+        "n": 1, // numerical value
+        "ct": 10 // times that the value 1 appears
       },
       .
       .

@@ -31,6 +31,7 @@ function calcStats(
     filter = undefined,
     map,
     calcCount = true,
+    calcFrequency = true,
     calcHistogram = true,
     calcInvalid = true,
     calcMax = true,
@@ -60,6 +61,7 @@ function calcStats(
       if (
         ![
           "count",
+          "frequency",
           "histogram",
           "invalid",
           "max",
@@ -81,6 +83,7 @@ function calcStats(
       }
     });
     calcCount = stats.includes("count");
+    calcFrequency = stats.includes("frequency");
     calcHistogram = stats.includes("histogram");
     calcInvalid = stats.includes("invalid");
     calcMax = stats.includes("max");
@@ -105,9 +108,11 @@ function calcStats(
 
   const iter = getOrCreateIterator(data);
 
-  let needHistogram = calcHistogram || calcMedian || calcMode || calcModes || calcVariance || calcStd || calcUniques;
+  let needHistogram =
+    calcFrequency || calcHistogram || calcMedian || calcMode || calcModes || calcVariance || calcStd || calcUniques;
   let needValid =
     calcCount ||
+    calcFrequency ||
     calcMean ||
     calcMedian ||
     calcProduct ||
@@ -277,6 +282,28 @@ function calcStats(
         });
       }
       results.histogram = histogram;
+    }
+    if (calcFrequency) {
+      const frequency = {};
+      if (precise) {
+        const valid_as_string = valid.toString();
+        for (let key in histogram) {
+          const obj = histogram[key];
+          frequency[key] = {
+            n: obj.n.toString(),
+            freq: divide(obj.ct, valid_as_string, { max_decimal_digits: precise_max_decimal_digits })
+          };
+        }
+      } else {
+        for (let key in histogram) {
+          const obj = histogram[key];
+          frequency[key] = {
+            n: obj.n,
+            freq: obj.ct / valid
+          };
+        }
+      }
+      results.frequency = frequency;
     }
     if (calcMode || calcModes) {
       let highest_count = 0;
